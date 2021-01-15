@@ -1,0 +1,174 @@
+backend:
+  name: git-gateway
+  branch: master
+media_folder: public/images
+public_folder: /images
+publish_mode: editorial_workflow
+
+collections:
+  - name: "config"
+    label: "Config"
+    delete: false
+    editor:
+      preview: false
+    files:
+      - name: "general"
+        label: "Site Config"
+        file: "config.json"
+        description: "General site settings"
+        fields:
+          - label: "URL"
+            name: "base_url"
+            widget: "string"
+            hint: "Do not enter the trailing slash of the URL"
+          - label: "Site title"
+            name: "site_title"
+            widget: "string"
+          - label: "Site description"
+            name: "site_description"
+            widget: "string"
+          - label: "Site keywords"
+            name: "site_keywords"
+            widget: "list"
+            summary: "{{fields.keyword.keyword}}"
+            field:
+              label: Keyword
+              name: keyword
+              widget: "string"
+          - label: "Instagram account"
+            name: "instagram_account"
+            widget: "string"
+          - label: "Shopee account"
+            name: "shopee_account"
+            widget: "string"
+          - label: "Whatsapp link"
+            name: "whatsapp_link"
+            widget: "string"
+
+  - name: "meta"
+    label: "Meta"
+    delete: false
+    editor:
+      preview: false
+    files:
+      - name: "tags"
+        label: "Tags"
+        file: "meta/tags.yml"
+        description: "List of tags"
+        fields:
+          - name: tags
+            label: Tags
+            label_singular: "Tag"
+            widget: list
+            fields:
+              - label: "Slug"
+                name: "slug"
+                widget: "string"
+                hint: "The part of a URL identifies the tag"
+              - label: "Display Name"
+                name: "name"
+                widget: "string"
+                hint: "Tag name for displaying on the site"
+      - name: "images"
+        label: "Images"
+        file: "meta/images.yml"
+        description: "List of images"
+        fields:
+          - name: images
+            label: Images
+            label_singular: "Image"
+            widget: list
+            fields:
+              - label: "Name"
+                name: "name"
+                widget: "string"
+                hint: "Image name"
+              - label: "Image"
+                name: "image"
+                widget: "image"
+                default: "/images/600x300.png"
+  - name: "products"
+    label: "Products"
+    folder: "src/pages/products"
+    extension: "mdx"
+    format: "frontmatter"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: slug
+    summary: "{{title}}"
+    fields:
+      - label: "Slug"
+        name: "slug"
+        widget: "string"
+      - label: "Name"
+        name: "name"
+        widget: "string"
+      - label: "Publish Date"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        dateFormat: "YYYY-MM-DD"
+        timeFormat: false
+      - label: Sizes
+        label_singular: "Size"
+        name: "sizes"
+        widget: list
+        summary: "{{fields.size}}"
+        default: ["S", "M", "L"]
+        field:
+          label: Size
+          name: size
+          widget: string
+      - label: Colors
+        label_singular: "color"
+        name: "colors"
+        widget: list
+        summary: "{{fields.color}}"
+        field:
+          label: Color
+          name: color
+          widget: string
+      - label: Tags
+        label_singular: "Tag"
+        name: "tags"
+        widget: list
+        summary: "{{fields.tag}}"
+        field:
+          label: Tag
+          name: tag
+          widget: relation
+          collection: "meta"
+          file: "tags"
+          searchFields:
+            - "tags.*.name"
+          displayFields:
+            - "tags.*.name"
+          valueField: "tags.*.slug"
+      - label: "Price"
+        name: "price"
+        widget: "number"
+      - label: "Shopee URL"
+        name: "shopeeURL"
+        widget: "string"
+      - label: "Whatsapp Text"
+        name: "whatsappText"
+        widget: "string"
+      - label: Images
+        label_singular: "Image"
+        name: "images"
+        widget: list
+        summary: "{{fields.image}}"
+        field:
+          label: Image
+          name: image
+          widget: relation
+          collection: "meta"
+          file: "images"
+          searchFields:
+            - "images.*.name"
+          displayFields:
+            - "images.*.name"
+          valueField: "images.*.image"
+      - label: "Body"
+        name: "body"
+        widget: "markdown"

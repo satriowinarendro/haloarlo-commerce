@@ -1,19 +1,5 @@
-import type { GetStaticPropsContext } from 'next'
-import { getConfig } from '@framework/api'
-import getAllPages from '@framework/api/operations/get-all-pages'
 import { Layout } from '@components/common'
 import { Container } from '@components/ui'
-
-export async function getStaticProps({
-  preview,
-  locale,
-}: GetStaticPropsContext) {
-  const config = getConfig({ locale })
-  const { pages } = await getAllPages({ config, preview })
-  return {
-    props: { pages },
-  }
-}
 
 export default function Blog() {
   return (

@@ -1,14 +1,5 @@
 import type { ProductNode } from '@framework/api/operations/get-product'
-
-export type SelectedOptions = {
-  size: string | null
-  color: string | null
-}
-
-export type ProductOption = {
-  displayName: string
-  values: any
-}
+import { ProductOption, SelectedOptions } from '@lib/data/products'
 
 // Returns the available options of a product
 export function getProductOptions(product: ProductNode) {

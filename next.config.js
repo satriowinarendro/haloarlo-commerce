@@ -1,8 +1,8 @@
-const bundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: !!process.env.BUNDLE_ANALYZE,
-})
+const withPlugins = require('next-compose-plugins')
 
-module.exports = bundleAnalyzer({
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: !!process.env.BUNDLE_ANALYZE,
+})({
   images: {
     domains: ['cdn11.bigcommerce.com'],
   },
@@ -39,3 +39,39 @@ module.exports = bundleAnalyzer({
     ]
   },
 })
+
+const rehypePrism = require("@mapbox/rehype-prism");
+
+const withMdxEnhanced = require("next-mdx-enhanced")({
+  layoutPath: "pages/product/layout",
+  defaultLayout: true,
+  usesSrc: false,
+  rehypePlugins: [rehypePrism],
+})({
+  pageExtensions: ["mdx", "tsx"],
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Fixes packages that depend on fs/module module
+    if (!isServer) {
+      config.node = { fs: 'empty', module: 'empty' }
+    }
+    config.module.rules.push(
+      ...[
+        {
+          test: /\.yml$/,
+          type: "json",
+          use: "yaml-loader",
+        },
+        {
+          test: /\.svg$/,
+          use: "@svgr/webpack",
+        },
+      ]
+    );
+    return config;
+  },
+});
+
+module.exports = withPlugins([
+  [withBundleAnalyzer],
+  [withMdxEnhanced]
+])

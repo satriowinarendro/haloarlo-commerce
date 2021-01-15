@@ -9,16 +9,16 @@ import { Bag, Cross, Check } from '@components/icons'
 import { CartItem } from '@components/cart'
 import { Text } from '@components/ui'
 
-export async function getStaticProps({
-  preview,
-  locale,
-}: GetStaticPropsContext) {
-  const config = getConfig({ locale })
-  const { pages } = await getAllPages({ config, preview })
-  return {
-    props: { pages },
-  }
-}
+// export async function getStaticProps({
+//   preview,
+//   locale,
+// }: GetStaticPropsContext) {
+//   const config = getConfig({ locale })
+//   const { pages } = await getAllPages({ config, preview })
+//   return {
+//     props: { pages },
+//   }
+// }
 
 export default function Cart() {
   const { data, isEmpty } = useCart()
