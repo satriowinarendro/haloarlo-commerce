@@ -5,28 +5,31 @@ import yaml from "js-yaml";
 
 const productsDirectory = path.join(process.cwd(), "pages/product");
 
-export type ProductContent = {
+export interface ProductContent{
   date: string;
   name: string;
   slug: string;
   price: number;
   description: string;
-  colors: string[];
-  sizes: string[];
+  variants: string[];
   tags?: string[];
   shopeeURL?: string;
   whatsappText?: string;
   images?: string[];
 };
 
-export type SelectedOptions = {
-  size: string;
-  color: string;
-};
-
-export type ProductOption = {
+export interface ProductOption{
   displayName: string
   values: any
+}
+
+export interface VariantCombination{
+  size: string
+  color: string
+}
+
+export interface Stock extends VariantCombination{
+  stock: string
 }
 
 let productCache: ProductContent[];
@@ -89,11 +92,46 @@ export function listProductContent(
     .slice((page - 1) * limit, page * limit);
 }
 
+export function getStocks(variants: string[]): Stock[]{
+  return variants.map((variant) => {
+    const [size,color,stock] = variant.split(":");
+    return {
+      size,
+      color,
+      stock
+    }
+  });
+}
+
+export function getStockForACombination(variants: string[], {size, color}: VariantCombination): string | null{
+  const stocks = getStocks(variants);
+  const item: Stock | undefined = stocks.find((stock) => (stock.size === size) && (stock.color === color));
+  return item ? item.stock : null;
+}
+
+export function getUniqueSizesAndColors(variants: string[]): {
+  sizes: Set<string>,
+  colors: Set<string>,
+}{
+  const stocks = getStocks(variants);
+  const sizes = new Set<string>();
+  const colors = new Set<string>();
+  stocks.map((variant) => {
+    sizes.add(variant.size);
+    colors.add(variant.color);
+  });
+  return {
+    sizes,
+    colors,
+  }
+}
+
 export function createProductOptions(product: ProductContent): ProductOption[]{
+  const {sizes, colors} = getUniqueSizesAndColors(product.variants);
   return [
     {
       displayName: "color",
-      values: product?.colors?.map((color) => ({
+      values: [...colors].map((color) => ({
         entityId: color,
         hexColors: "",
         label: color,
@@ -101,7 +139,7 @@ export function createProductOptions(product: ProductContent): ProductOption[]{
     },
     {
       displayName: "size",
-      values: product?.sizes?.map((size) => ({
+      values: [...sizes].map((size) => ({
         entityId: size,
         hexColors: "",
         label: size,

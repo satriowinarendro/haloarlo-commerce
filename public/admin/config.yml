@@ -109,24 +109,14 @@ collections:
         format: "YYYY-MM-DD"
         dateFormat: "YYYY-MM-DD"
         timeFormat: false
-      - label: Sizes
-        label_singular: "Size"
-        name: "sizes"
+      - label: Variants
+        label_singular: "Variant"
+        name: "variants"
         widget: list
-        summary: "{{fields.size}}"
-        default: ["S", "M", "L"]
+        summary: "{{fields.variant}}"
         field:
-          label: Size
-          name: size
-          widget: string
-      - label: Colors
-        label_singular: "color"
-        name: "colors"
-        widget: list
-        summary: "{{fields.color}}"
-        field:
-          label: Color
-          name: color
+          label: Variant
+          name: variant
           widget: string
       - label: Tags
         label_singular: "Tag"

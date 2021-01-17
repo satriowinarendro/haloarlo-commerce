@@ -1,5 +1,5 @@
 import type { ProductNode } from '@framework/api/operations/get-product'
-import { ProductOption, SelectedOptions } from '@lib/data/products'
+import { ProductOption, VariantCombination } from '@lib/data/products'
 
 // Returns the available options of a product
 export function getProductOptions(product: ProductNode) {
@@ -20,7 +20,7 @@ export function getProductOptions(product: ProductNode) {
 }
 
 // Finds a variant in the product that matches the selected options
-export function getCurrentVariant(product: ProductNode, opts: SelectedOptions) {
+export function getCurrentVariant(product: ProductNode, opts: VariantCombination) {
   const variant = product.variants.edges?.find((edge) => {
     const { node } = edge ?? {}
 

@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useMemo, useState } from 'react'
 import cn from 'classnames'
 import Image from 'next/image'
 import { NextSeo } from 'next-seo'
@@ -8,8 +8,7 @@ import { useUI } from '@components/ui/context'
 import { Swatch, ProductSlider } from '@components/product'
 import { Button, Container, Text } from '@components/ui'
 
-import useAddItem from '@framework/cart/use-add-item'
-import { SelectedOptions } from "@lib/data/products"
+import { getStockForACombination, VariantCombination } from "@lib/data/products"
 import WishlistButton from '@components/wishlist/WishlistButton'
 import { createProductOptions, ProductContent } from '@lib/data/products'
 import { addToCart } from '@lib/data/cart'
@@ -22,14 +21,23 @@ interface Props {
 }
 
 const ProductView: FC<Props> = ({ product, children }) => {
-  const price = product.price
   const options = createProductOptions(product)
   const { openSidebar } = useUI()
   const [loading, setLoading] = useState(false)
-  const [choices, setChoices] = useState<SelectedOptions>({
+  const [choices, setChoices] = useState<VariantCombination>({
     size: options[1].values[0].label,
     color: options[0].values[0].label,
   })
+  const stock = useMemo(() => getStockForACombination(product.variants, {size: choices.size, color: choices.color}), [product, choices]);
+  const isOutOfStock = stock === "0";
+
+  const renderStock = () => {
+    return (
+      <span className={cn(isOutOfStock && "text-red font-extrabold")}>
+        {isOutOfStock ? "Out of stock" : stock}
+      </span>
+    );
+  }
 
   return (
     <Container className="max-w-none w-full" clean>
@@ -55,7 +63,7 @@ const ProductView: FC<Props> = ({ product, children }) => {
           <div className={s.nameBox}>
             <h1 className={s.name}>{product.name}</h1>
             <div className={s.price}>
-              {price}
+              {product.price}
               {` `}
               {"IDR"}
             </div>
@@ -63,7 +71,7 @@ const ProductView: FC<Props> = ({ product, children }) => {
 
           <div className={s.sliderContainer}>
             <ProductSlider key={product.slug}>
-              {product?.images?.map((image, i) => (
+              {product.images?.map((image, i) => (
                 <div key={image} className={s.imageContainer}>
                   <Image
                     className={s.img}
@@ -82,7 +90,7 @@ const ProductView: FC<Props> = ({ product, children }) => {
 
         <div className={s.sidebar}>
           <section>
-            {options?.map((opt: any) => (
+            {options.map((opt: any) => (
               <div className="pb-4" key={opt.displayName}>
                 <h2 className="uppercase font-medium">{opt.displayName}</h2>
                 <div className="flex flex-row py-4">
@@ -109,11 +117,12 @@ const ProductView: FC<Props> = ({ product, children }) => {
                 </div>
               </div>
             ))}
-
-            <div className="pb-14 break-words w-full max-w-xl">
-              <Text>
+            <div className="pb-4">
+              <h2 className="uppercase font-medium">Available Stock:</h2>
+              <div className="py-4">{renderStock()}</div>
+            </div>
+            <div className="pb-10 break-words w-full max-w-xl">
                 {children}
-              </Text>
             </div>
           </section>
           <div>
@@ -129,7 +138,8 @@ const ProductView: FC<Props> = ({ product, children }) => {
                 setLoading(false)
               }}
               loading={loading}
-              disabled={!choices.color || !choices.size}
+              disabled={!choices.color || !choices.size || isOutOfStock}
+
             >
               Add to Cart
             </Button>
